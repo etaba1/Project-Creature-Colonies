@@ -1,0 +1,169 @@
+var G = 1;
+angleMode = "radians";
+
+var Creatures = function() {
+    //where creatures start off
+  this.position = new PVector(random(width), random(height));
+  this.velocity = new PVector(0, 0);
+  this.acceleration = new PVector(0, 0); 
+};
+
+var Blueguys = function(position, velocity, acceleration) {
+    Creatures.call(this,position, velocity, acceleration);
+};
+
+Blueguys.prototype=Object.create(Creatures.prototype);
+
+Blueguys.prototype.display = function() {
+  var angle = atan(this.velocity.y / this.velocity.x);
+  pushMatrix();
+  translate(this.position.x,this.position.y);
+  rotate(angle);
+  var Blueguys = image(getImage("avatars/aqualine-sapling"),0,0,80,90);
+  popMatrix();
+};
+
+Blueguys.prototype.update = function(r,a) {
+    //follow the mouse
+    var mouse = new PVector(random(width), random(height));
+
+var dir = PVector.sub(mouse, this.position);
+    dir.normalize(); // smoother animation
+    //makes creatures swarm around mouse and more lively
+    dir.mult(0.3);
+    this.acceleration = dir;
+    //moves at smooth pace (not too slow)
+    this.velocity.add(this.acceleration);//makes creatures less all over the place and more gathered towards mouse
+    this.velocity.limit(5);
+    this.position.add(this.velocity);
+
+};
+
+var sRedbug = function(position, velocity, acceleration) {
+    Creatures.call(this,position, velocity, acceleration);
+};
+
+sRedbug.prototype=Object.create(Creatures.prototype);
+
+sRedbug.prototype.display = function() {
+    //draws/displays the creatures themselves
+  image(getImage("cute/EnemyBug"),this.position.x,this.position.y,20,30);
+};
+
+sRedbug.prototype.update = function() {
+    //follow the mouse
+    var mouse = new PVector(random(width), random(height));
+
+var dir = PVector.sub(mouse, this.position);
+    dir.normalize(); // smoother animation
+    //makes creatures swarm around mouse and more lively
+    dir.mult(0.3);
+    this.acceleration = dir;
+    //moves at smooth pace (not too slow)
+    this.velocity.add(this.acceleration);//makes creatures less all over the place and more gathered towards mouse
+    this.velocity.limit(5);
+    this.position.add(this.velocity);
+    
+};
+
+Blueguys.prototype.checkEdges = function() {
+//making sure the creatures don't go off canvas
+ if (this.position.x > width) {
+    this.position.x = 0; 
+  } 
+  else if (this.position.x < 0) {
+    this.position.x = width;
+  }
+
+  if (this.position.y > height) {
+    this.position.y = 0;
+  } 
+  else if (this.position.y < 0) {
+    this.position.y = height;
+  }
+};
+
+sRedbug.prototype.checkEdges = function() {
+//making sure the creatures don't go off canvas
+ if (this.position.x > width) {
+    this.position.x = 0; 
+  } 
+  else if (this.position.x < 0) {
+    this.position.x = width;
+  }
+
+  if (this.position.y > height) {
+    this.position.y = 0;
+  } 
+  else if (this.position.y < 0) {
+    this.position.y = height;
+  }
+};
+
+sRedbug.prototype.calculateAttraction = function(m, i) {
+    // Calculate direction of force
+    var force = PVector.sub(this.position, m.position);
+    // Distance between objects
+    var distance = force.mag();
+    // Limiting the distance to eliminate "extreme" results for very close or very far objects
+    distance = constrain(distance, 5.0, 25.0);
+    // Normalize vector (distance doesn't matter here, we just want this vector for direction                            
+    force.normalize();
+    // Calculate gravitional force magnitude
+    var strength = -(G * this.mass * m.mass) / (distance * distance);
+    // Get force vector --> magnitude * direction
+    force.mult(Blueguys);
+    return force;
+};
+
+
+for (var i = 0; i < 3; i++) {
+    //make 3 creatures
+    Blueguys[i] = new Blueguys(); 
+}
+
+//var sRedbug = [];
+for (var s = 0; s < 3; s++) {
+    //make 3 creatures
+    sRedbug[s] = new sRedbug(); 
+}
+
+
+draw = function(startAngle,StartAngle,amplitude,angleVel) {
+    //the whole program    
+    
+
+    background(179, 252, 250);
+    startAngle += 0.030;
+  var angle = startAngle;
+    for (var a = 0; a < 4; a++) {
+        for (var b = 0; b < 7; b++) {
+            image(getImage("cute/GrassBlock"),a*100,-40+b*61,100,125);
+        }
+    }
+    for (var i = 0; i < Blueguys.length; i++) {
+        Blueguys[i].update();
+        Blueguys[i].display(); 
+   }
+     for (var s = 0; s < sRedbug.length; s++) {
+        sRedbug[s].update();
+        sRedbug[s].display(); 
+    }
+       for (var a = 0; i < sRedbug.length; a++) {
+        for (var b = 0; b < sRedbug.length; b++) {
+            if (a !== b) {
+                var force = sRedbug[b].calculateAttraction(sRedbug[a]);
+                sRedbug[a].applyForce(force);
+            }
+        }
+        for (var x = 0; x <= sRedbug; x += 24) {
+    // Calculate the y location according to amplitude and sine of the angle.
+    var y = amplitude * cos(angle); //sorta groups them together
+    // Increment the angle according to angular velocity
+
+    
+  }
+
+       }
+
+};
